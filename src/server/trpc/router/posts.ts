@@ -17,8 +17,7 @@ export const postsRouter = router({
         .required()
     )
     .mutation(async ({ ctx, input }) => {
-      console.log(input);
-      if (!ctx.session.user.email) {
+      if (!ctx.session.user.id) {
         throw new TRPCError({
           code: "UNAUTHORIZED",
           message: "You are not authorized to access this request",
@@ -45,13 +44,46 @@ export const postsRouter = router({
         where: {
           userId: ctx.session.user.id,
         },
+        include: {
+          user: {
+            select: {
+              name: true,
+            },
+          },
+        },
       });
       return posts;
     } catch (error) {
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Something went wrong",
+        cause: error,
       });
     }
   }),
+  getPostById: protectedProcedure
+    .input(z.object({ id: z.string() }).required())
+    .query(async ({ ctx, input }) => {
+      try {
+        const post = await ctx.prisma.post.findUnique({
+          where: {
+            id: input.id,
+          },
+          include: {
+            user: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        });
+        return post;
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Something went wrong",
+          cause: error,
+        });
+      }
+    }),
 });
