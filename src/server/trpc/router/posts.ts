@@ -39,4 +39,19 @@ export const postsRouter = router({
         return null;
       }
     }),
+  getPostsByUser: protectedProcedure.query(async ({ ctx }) => {
+    try {
+      const posts = await ctx.prisma.post.findMany({
+        where: {
+          userId: ctx.session.user.id,
+        },
+      });
+      return posts;
+    } catch (error) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Something went wrong",
+      });
+    }
+  }),
 });
