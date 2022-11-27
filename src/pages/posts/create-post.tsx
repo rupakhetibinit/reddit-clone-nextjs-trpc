@@ -16,11 +16,14 @@ const CreatePost = () => {
 
   const handleClick = async () => {
     if (!!post.title && !!post.body) {
-      await mutation.mutateAsync(post);
+      const thing = await mutation.mutateAsync(post);
+      if (!thing) return;
+      await router.replace("/posts/" + thing.id);
     }
-    if (!mutation?.error?.message) {
-      await router.replace("/posts");
-    }
+    // if (!mutation?.error?.message) {
+    //   await router.replace("/posts");
+    // }
+    console.log(mutation);
   };
   if (status !== "authenticated") {
     <div>loading</div>;

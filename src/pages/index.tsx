@@ -17,7 +17,7 @@ const Home: NextPage = () => {
       }
     };
     makeRouter();
-    () => setLoading(false);
+    setLoading(false);
   }, [router, sessionData]);
 
   if (loading) return null;

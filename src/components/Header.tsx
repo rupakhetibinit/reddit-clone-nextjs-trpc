@@ -7,14 +7,14 @@ const Header = () => {
   const { data: sessionData } = useSession();
 
   return (
-    <nav className="mx-3 flex w-screen justify-between bg-purple-700">
+    <nav className="flex w-full items-center justify-between bg-purple-700 py-3 px-4">
       <div>{sessionData?.user?.name}</div>
       <ul>
         <button
           className="rounded-full bg-white/10 px-8 py-3 font-semibold text-black no-underline transition hover:bg-white/20"
           onClick={async () => {
             await signOut();
-            await router.push("/");
+            await router.replace("/");
           }}
         >
           Sign Out

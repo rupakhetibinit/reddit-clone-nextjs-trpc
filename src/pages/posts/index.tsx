@@ -1,7 +1,6 @@
 import type { Post } from "@prisma/client";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import React from "react";
 import Header from "../../components/Header";
 import { trpc } from "../../utils/trpc";
@@ -14,9 +13,9 @@ const Posts = () => {
   }
   return (
     <>
-      <div className="flex flex-col  items-center">
+      <div className="flex flex-col items-center">
         <Header />
-        <div className="flex w-full flex-col items-center">
+        <div className=" flex min-w-full flex-col items-center">
           {posts?.map((post) => (
             <PostCard key={post.id} post={post} />
           ))}

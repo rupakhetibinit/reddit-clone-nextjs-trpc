@@ -25,7 +25,7 @@ const Post = () => {
       </div>
     );
   return (
-    <div>
+    <div className="flex flex-col items-center">
       <div className="m-2 flex h-fit w-9/12 flex-row justify-between rounded-md bg-gray-300/80 p-4">
         <div>
           <Link href={"/posts/" + post?.id}>
@@ -48,6 +48,14 @@ const Post = () => {
           Edit
         </button>
       </div>
+      <button
+        className="py-2s m-1 cursor-pointer bg-purple-500 px-6 text-white"
+        onClick={async () => {
+          await router.replace("/posts");
+        }}
+      >
+        Back to posts
+      </button>
     </div>
   );
 };
