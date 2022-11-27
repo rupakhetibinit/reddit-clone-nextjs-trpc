@@ -3,10 +3,10 @@ import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
+import Header from "../../components/Header";
 import { trpc } from "../../utils/trpc";
 
 const Posts = () => {
-  const router = useRouter();
   const { data: sessionData } = useSession();
   const { data: posts } = trpc.posts.getAll.useQuery();
   if (!sessionData?.user) {
@@ -14,26 +14,19 @@ const Posts = () => {
   }
   return (
     <>
-      <div className="flex flex-col">
-        <nav className="flex justify-between bg-purple-700">
-          <div>{sessionData.user.name}</div>
-          <ul>
-            <button
-              className="rounded-full bg-white/10 px-8 py-3 font-semibold text-black no-underline transition hover:bg-white/20"
-              onClick={async () => {
-                await signOut();
-                await router.push("/");
-              }}
-            >
-              Sign Out
-            </button>
-          </ul>
-        </nav>
+      <div className="flex flex-col  items-center">
+        <Header />
         <div className="flex w-full flex-col items-center">
           {posts?.map((post) => (
             <PostCard key={post.id} post={post} />
           ))}
         </div>
+        <Link
+          href="posts/create-post"
+          className="m-1 rounded-sm bg-purple-500 px-6 py-2 disabled:bg-gray-500"
+        >
+          Create Post
+        </Link>
       </div>
     </>
   );
@@ -65,7 +58,8 @@ const PostCard = ({ post }: { post: ReturnedPost }) => {
       </div>
       <button
         className="m-1 bg-purple-500 px-6 py-2 disabled:bg-gray-500"
-        disabled={post.userId !== sessionData?.user?.id}
+        // disabled={post.userId !== sessionData?.user?.id}
+        disabled={true}
       >
         Edit
       </button>
