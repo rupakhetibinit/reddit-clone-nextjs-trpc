@@ -1,4 +1,4 @@
-import { Post } from "@prisma/client";
+import type { Post } from "@prisma/client";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -8,7 +8,7 @@ import { trpc } from "../../utils/trpc";
 const Posts = () => {
   const router = useRouter();
   const { data: sessionData } = useSession();
-  const { data: posts } = trpc.posts.getPostsByUser.useQuery();
+  const { data: posts } = trpc.posts.getAll.useQuery();
   if (!sessionData?.user) {
     return <div>You are not authorized to see this page</div>;
   }

@@ -5,6 +5,11 @@ export const postsRouter = router({
   getAll: publicProcedure.query(async ({ ctx }) => {
     return await ctx.prisma.post.findMany({
       take: 15,
+      include: {
+        user: {
+          select: { name: true },
+        },
+      },
     });
   }),
   createPost: protectedProcedure
