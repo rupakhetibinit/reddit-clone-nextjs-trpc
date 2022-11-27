@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { trpc } from "../../utils/trpc";
 
 const CreatePost = () => {
-  const { data: sessionData } = useSession();
+  const { data: sessionData, status } = useSession();
   const mutation = trpc.posts.createPost.useMutation();
 
   const [post, setPost] = useState({
@@ -16,6 +16,9 @@ const CreatePost = () => {
       await mutation.mutateAsync(post);
     }
   };
+  if (status !== "authenticated") {
+    <div>loading</div>;
+  }
   if (!sessionData) {
     return <div>You are not logged in</div>;
   }
