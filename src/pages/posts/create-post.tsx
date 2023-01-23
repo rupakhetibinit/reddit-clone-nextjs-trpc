@@ -32,7 +32,7 @@ const CreatePost = () => {
     return <div>You are not logged in</div>;
   }
   return (
-    <div className="flex min-h-screen min-w-full flex-col items-center bg-purple-500  ">
+    <div className="container">
       <Header />
       <label>Title of Post</label>
       <input

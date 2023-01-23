@@ -1,6 +1,5 @@
 import { useSession, signOut } from "next-auth/react";
-import { useRouter } from "next/router";
-import React from "react";
+import Image from "next/image";
 
 const Header = () => {
   const { data: sessionData } = useSession();
@@ -12,7 +11,15 @@ const Header = () => {
   };
   return (
     <nav className="flex w-full items-center justify-between bg-purple-700 py-3 px-4">
-      <div>{sessionData?.user?.name}</div>
+      <div className="flex flex-row">
+        <Image
+          src={sessionData?.user?.image}
+          alt="user image"
+          width={20}
+          height={20}
+        />
+        <div className="px-2">{sessionData?.user?.name}</div>
+      </div>
       <ul>
         <button
           className="rounded-full bg-white/10 px-8 py-3 font-semibold text-black no-underline transition hover:bg-white/20"

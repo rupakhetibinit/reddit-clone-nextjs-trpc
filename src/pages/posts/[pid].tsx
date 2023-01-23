@@ -25,38 +25,40 @@ const Post = () => {
       </div>
     );
   return (
-    <div className="flex flex-col items-center">
-      <div className="m-2 flex h-fit w-9/12 flex-row justify-between rounded-md bg-gray-300/80 p-4">
-        <div>
-          <Link href={"/posts/" + post?.id}>
-            <h3 className="text-2xl text-blue-600">{post?.title}</h3>
-          </Link>
-          <p className="text-base">{post?.body}</p>
-          <p className="text-xs">
-            Posted By
-            <Link className="text-blue-600" href={"/" + post?.userId}>
-              {" " + post?.user?.name}
+    <>
+      <div className="flex flex-col items-center">
+        <div className="m-2 flex h-fit w-9/12 flex-row justify-between rounded-md bg-gray-300/80 p-4">
+          <div>
+            <Link href={"/posts/" + post?.id}>
+              <h3 className="text-2xl text-blue-600">{post?.title}</h3>
             </Link>
-          </p>
+            <p className="text-base">{post?.body}</p>
+            <p className="text-xs">
+              Posted By
+              <Link className="text-blue-600" href={"/" + post?.userId}>
+                {" " + post?.user?.name}
+              </Link>
+            </p>
+          </div>
 
-          {/* <div className="text-xs">comments</div> */}
+          <button
+            className="m-1 cursor-pointer bg-purple-500 px-6 py-2 disabled:bg-gray-300"
+            disabled={post.userId !== session.user.id}
+          >
+            Edit
+          </button>
         </div>
         <button
-          className="m-1 cursor-pointer bg-purple-500 px-6 py-2 disabled:bg-gray-300"
-          disabled={post.userId !== session.user.id}
+          className="py-2s m-1 cursor-pointer bg-purple-500 px-6 text-white"
+          onClick={async () => {
+            await router.replace("/posts");
+          }}
         >
-          Edit
+          Back to posts
         </button>
       </div>
-      <button
-        className="py-2s m-1 cursor-pointer bg-purple-500 px-6 text-white"
-        onClick={async () => {
-          await router.replace("/posts");
-        }}
-      >
-        Back to posts
-      </button>
-    </div>
+      <div>Comments</div>
+    </>
   );
 };
 
