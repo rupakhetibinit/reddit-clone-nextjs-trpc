@@ -1,7 +1,6 @@
 import { router, publicProcedure, protectedProcedure } from "../trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { PHASE_PRODUCTION_BUILD } from "next/dist/shared/lib/constants";
 export const postsRouter = router({
   getAll: publicProcedure.query(async ({ ctx }) => {
     return await ctx.prisma.post.findMany({

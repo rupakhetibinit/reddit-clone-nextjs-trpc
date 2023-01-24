@@ -1,8 +1,6 @@
 import type {
-  GetServerSideProps,
   GetServerSidePropsContext,
   InferGetServerSidePropsType,
-  NextPage,
 } from "next";
 import Head from "next/head";
 import Link from "next/link";
@@ -10,7 +8,6 @@ import Search from "../components/Search";
 import TwoIconPopover from "../components/TwoIconPopover";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import {
-  ArrowDownIcon,
   HomeIcon,
   ArrowLeftOnRectangleIcon,
   ArrowRightOnRectangleIcon,
@@ -22,18 +19,9 @@ import {
   ShareIcon,
 } from "@heroicons/react/24/outline";
 import { BiDownvote, BiUpvote } from "react-icons/bi";
-import { Post } from "@prisma/client";
-import { Session } from "next-auth";
 import { useSession } from "next-auth/react";
 import { trpc } from "../utils/trpc";
-interface Props {
-  props: {
-    post: Post[] | undefined;
-    session: Session | null;
-    isAuthed: boolean;
-  };
-}
-
+import { prisma } from "../server/db/client";
 export const getServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
@@ -43,7 +31,7 @@ export const getServerSideProps = async (
     isAuthed = true;
   }
 
-  const posts = await prisma?.post.findMany({
+  const posts = await prisma.post.findMany({
     select: {
       body: true,
       id: true,
@@ -55,7 +43,6 @@ export const getServerSideProps = async (
       },
     },
   });
-  console.log(posts);
 
   return {
     props: {

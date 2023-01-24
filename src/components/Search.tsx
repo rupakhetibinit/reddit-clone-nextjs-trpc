@@ -1,9 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
-type Props = {};
 
-const Search = (props: Props) => {
-  const [query, setQuery] = useState("");
+const Search = () => {
   return (
     <div className="relative">
       <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">

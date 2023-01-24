@@ -12,12 +12,12 @@ const Header = () => {
   return (
     <nav className="flex w-full items-center justify-between bg-purple-700 py-3 px-4">
       <div className="flex flex-row">
-        <Image
-          src={sessionData?.user?.image}
+        {/* <Image
+          src={sessionData?.user?.image!}
           alt="user image"
           width={20}
           height={20}
-        />
+        /> */}
         <div className="px-2">{sessionData?.user?.name}</div>
       </div>
       <ul>
