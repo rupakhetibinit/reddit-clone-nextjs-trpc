@@ -2,8 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["referentialIntegrity"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -62,6 +61,7 @@ model User {
   sessions      Session[]
   posts         Post[]
   comments      Comment[]
+  upvotedPosts  Post[]    @relation(name: "upvote")
 }
 
 model VerificationToken {
@@ -73,13 +73,14 @@ model VerificationToken {
 }
 
 model Post {
-  id       String    @id @default(cuid())
-  body     String
-  title    String
-  upvotes  Int       @default(0)
-  user     User      @relation(fields: [userId], references: [id])
-  userId   String
-  comments Comment[]
+  id        String    @id @default(cuid())
+  body      String
+  title     String
+  upvotes   Int       @default(0)
+  user      User      @relation(fields: [userId], references: [id])
+  userId    String
+  comments  Comment[]
+  upvotedBy User[]    @relation(name: "upvote")
 
   @@index([userId])
 }

@@ -25,6 +25,7 @@ import { BiDownvote, BiUpvote } from "react-icons/bi";
 import { Post } from "@prisma/client";
 import { Session } from "next-auth";
 import { useSession } from "next-auth/react";
+import { trpc } from "../utils/trpc";
 interface Props {
   props: {
     post: Post[] | undefined;
@@ -69,7 +70,9 @@ export default function Home({
   isAuthed,
   posts,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  const { mutateAsync } = trpc.posts.upvotePostById.useMutation();
   const userSession = useSession();
+  console.log(userSession);
   return (
     <>
       <Head>
@@ -169,13 +172,18 @@ export default function Home({
               className="prose my-4 flex w-full flex-row rounded-sm bg-white pr-12"
             >
               <div className="-z-1 flex flex-col items-center gap-y-1 bg-gray-100 p-2">
-                <div>
-                  <BiUpvote className="h-6 w-6" />
-                </div>
+                <BiUpvote
+                  onClick={() =>
+                    mutateAsync({
+                      userId: userSession.data?.user?.id as string,
+                      postId: id,
+                    })
+                  }
+                  className="h-6 w-6"
+                />
+                <span></span>
                 <div className="text-sm font-bold">Vote</div>
-                <div>
-                  <BiDownvote className="h-6 w-6" />
-                </div>
+                <BiDownvote className="h-6 w-6" />
               </div>
               <div className="flex flex-col px-4">
                 <h6 className="prose">Posted by {user?.name}</h6>
