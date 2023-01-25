@@ -1,20 +1,15 @@
 import "../styles/globals.css";
-import {
-  HomeIcon,
-  ChevronDownIcon,
-  UserIcon,
-  ArrowLeftOnRectangleIcon,
-  ArrowRightOnRectangleIcon,
-} from "@heroicons/react/24/solid";
 import { unstable_getServerSession } from "next-auth";
 import Link from "next/link";
-import ClientPopover from "../components/ClientPopover";
+import ClientPopover, {
+  WrappedClientPopover,
+} from "../components/ClientPopover";
 import Search from "../components/Search";
-import TwoIconPopover from "../components/TwoIconPopover";
+import { authOptions } from "../pages/api/auth/[...nextauth]";
 
 const getAuth = async () => {
   let isAuth = false;
-  const userSession = await unstable_getServerSession();
+  const userSession = await unstable_getServerSession(authOptions);
   if (userSession?.user?.id) {
     isAuth = true;
   }
@@ -29,6 +24,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const { isAuth: isAuthed, userSession } = await getAuth();
+  console.log(isAuthed);
   return (
     <html lang="en">
       <body>
@@ -80,6 +76,7 @@ export default async function RootLayout({
                 </li>
               </ul>
             </nav>
+            <WrappedClientPopover />
           </div>
 
           {children}
