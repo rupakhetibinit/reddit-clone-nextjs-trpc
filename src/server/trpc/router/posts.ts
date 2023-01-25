@@ -3,14 +3,18 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 export const postsRouter = router({
   getAll: publicProcedure.query(async ({ ctx }) => {
-    return await ctx.prisma.post.findMany({
+    const posts = await ctx.prisma.post.findMany({
       take: 15,
       include: {
         user: {
           select: { name: true },
         },
+        upvotedBy: {
+          select: { id: true },
+        },
       },
     });
+    return posts;
   }),
   createPost: protectedProcedure
     .input(
@@ -95,7 +99,7 @@ export const postsRouter = router({
     .input(z.object({ postId: z.string(), userId: z.string() }).required())
     .mutation(async ({ ctx, input }) => {
       try {
-        const post = await ctx?.prisma.post.findFirst({
+        const post = await ctx.prisma.post.findFirst({
           where: {
             id: input.postId,
           },
@@ -112,48 +116,56 @@ export const postsRouter = router({
             },
           },
         });
+        console.log(post);
         if (post?.upvotedBy.length === 0) {
-          await ctx.prisma.post.update({
+          const thing = await ctx.prisma.post.update({
             where: {
               id: input.postId,
             },
+            select: {
+              _count: {
+                select: {
+                  upvotedBy: true,
+                },
+              },
+            },
             data: {
               upvotedBy: {
-                create: {
+                connect: {
                   id: input.userId,
                 },
               },
             },
           });
+          return {
+            thing,
+            upvoted: true,
+          };
         }
-        if (post?.upvotedBy?.length && post.upvotedBy.length > 0) {
-          await prisma?.post.update({
+        if (post?.upvotedBy.length === 1) {
+          const thing = await prisma?.post.update({
             where: {
               id: input.postId,
             },
+            select: {
+              _count: {
+                select: {
+                  upvotedBy: true,
+                },
+              },
+            },
             data: {
               upvotedBy: {
-                delete: {
+                disconnect: {
                   id: input.userId,
                 },
               },
             },
           });
+          return {
+            upvoted: false,
+          };
         }
-        // if (post?.upvotedBy.find((user) => user.id === input.userId)) {
-        //   await ctx.prisma.post.update({
-        //     where: {
-        //       id: input.postId,
-        //     },
-        //     data: {
-        //       upvotedBy: {
-        //         delete: {
-        //           id: input.userId,
-        //         },
-        //       },
-        //     },
-        //   });
-        // }
       } catch (error) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
