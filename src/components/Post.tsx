@@ -10,6 +10,7 @@ import { ImArrowUp, ImArrowDown } from "react-icons/im";
 type Props = {
   user: {
     name: string | null;
+    id: string | null;
   };
   id: string;
   upvotedBy: {
@@ -19,11 +20,11 @@ type Props = {
   title: string;
 };
 
-const Post = ({ body, id, title, user }: Props) => {
+const Post = ({ body, id, title, user, upvotedBy }: Props) => {
   return (
     <div
       key={id}
-      className="my-4 flex w-1/2 min-w-fit flex-row rounded-sm bg-white"
+      className="my-4 flex h-fit w-5/12 min-w-fit flex-row rounded-sm bg-white"
     >
       <div className="-z-1 flex flex-col items-center gap-y-1 bg-gray-100 p-2">
         <ImArrowUp className={clsx("h-6 w-6 text-gray-400")} />
