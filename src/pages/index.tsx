@@ -2,6 +2,7 @@ import type {
   GetServerSidePropsContext,
   InferGetServerSidePropsType,
 } from "next";
+import Post from "../components/Post";
 import Head from "next/head";
 import Link from "next/link";
 import Search from "../components/Search";
@@ -39,6 +40,11 @@ export const getServerSideProps = async (
       user: {
         select: {
           name: true,
+        },
+      },
+      upvotedBy: {
+        select: {
+          id: true,
         },
       },
     },
@@ -152,42 +158,9 @@ export default function Home({
             </div>
           </TwoIconPopover>
         </header>
-        <section className="h-full w-auto pt-16">
-          {posts?.map(({ user, body, id, title }) => (
-            <div
-              key={id}
-              className="prose my-4 flex w-full flex-row rounded-sm bg-white pr-12"
-            >
-              <div className="-z-1 flex flex-col items-center gap-y-1 bg-gray-100 p-2">
-                <BiUpvote
-                  onClick={() =>
-                    mutateAsync({
-                      userId: userSession.data?.user?.id as string,
-                      postId: id,
-                    })
-                  }
-                  className="h-6 w-6"
-                />
-                <span></span>
-                <div className="text-sm font-bold">Vote</div>
-                <BiDownvote className="h-6 w-6" />
-              </div>
-              <div className="flex flex-col px-4">
-                <h6 className="prose">Posted by {user?.name}</h6>
-                <h3>{title}</h3>
-                <p>{body}</p>
-                <div className="flex items-center justify-around">
-                  <div className="flex items-center gap-x-2">
-                    <ChatBubbleBottomCenterIcon className="h-4 w-4" />
-                    <span className="prose-none">Comment</span>
-                  </div>
-                  <div className="flex items-center gap-x-2">
-                    <ShareIcon className="h-4 w-4" />
-                    <span className="prose-none">Share</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+        <section className="w-6/12 min-w-fit pt-16">
+          {posts.map((post) => (
+            <Post key={post.id} {...post} />
           ))}
         </section>
       </main>
