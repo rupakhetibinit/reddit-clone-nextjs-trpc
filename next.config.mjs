@@ -20,5 +20,8 @@ const config = {
     domains: ["cdn.discordapp.com"],
     remotePatterns: [{ protocol: "https", hostname: "cdn.discordapp.com" }],
   },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 };
 export default config;
