@@ -1,19 +1,21 @@
 import type {
+  GetServerSideProps,
   GetServerSidePropsContext,
   InferGetServerSidePropsType,
 } from "next";
-import Post from "../components/Post";
+import Post from "@/components/Post";
 import Head from "next/head";
-import { getServerAuthSession } from "../server/common/get-server-auth-session";
-import { prisma } from "../server/db/client";
-import Layout from "../components/Layout";
-import React, { ReactElement, useState } from "react";
-import { trpc } from "../utils/trpc";
-import { useSession } from "next-auth/react";
-import { NextPageWithLayout } from "./_app";
-export const getServerSideProps = async (
-  context: GetServerSidePropsContext
-) => {
+import { getServerAuthSession } from "@/server/common/get-server-auth-session";
+import { prisma } from "@/server/db/client";
+import React from "react";
+import type { Session } from "next-auth";
+import type Posts from "@/types/Post";
+
+export const getServerSideProps: GetServerSideProps<{
+  posts: Posts[];
+  isAuthed: boolean;
+  session: Session | null;
+}> = async (context: GetServerSidePropsContext) => {
   const session = await getServerAuthSession(context);
   let isAuthed = false;
   if (session) {
@@ -49,10 +51,9 @@ export const getServerSideProps = async (
 
 const Home = ({
   isAuthed,
+  session,
   posts,
-}: NextPageWithLayout<
-  InferGetServerSidePropsType<typeof getServerSideProps>
->) => {
+}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   return (
     <>
       <Head>
@@ -71,12 +72,4 @@ const Home = ({
   );
 };
 
-Home.getLayout = function getLayout(page: ReactElement) {
-  const { data } = useSession();
-  const [isAuth, setIsAuth] = useState(false);
-
-  if (data?.user?.id) {
-    setIsAuth(true);
-  }
-  return <Layout isAuthed={isAuth}>{page}</Layout>;
-};
+export default Home;
