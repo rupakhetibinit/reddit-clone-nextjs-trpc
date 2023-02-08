@@ -50,7 +50,8 @@ export const getServerSideProps: GetServerSideProps<{
 };
 
 const Home = ({
-  isAuthed,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  isAuthed: _,
   session,
   posts,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
@@ -61,8 +62,8 @@ const Home = ({
         <meta name="description" content="Front of the internet" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="flex h-screen w-screen justify-center bg-gray-300">
-        <Layout isAuthed={isAuthed}>
+      <main className="flex max-h-fit min-h-screen w-full justify-center bg-gray-300">
+        <Layout isAuthed={!!session}>
           <section className="w-6/12 min-w-fit pt-16">
             {posts.map((post) => (
               <Post key={post.id} {...post} />
