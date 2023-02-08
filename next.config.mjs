@@ -17,5 +17,14 @@ const config = {
     domains: ["cdn.discordapp.com"],
     remotePatterns: [{ protocol: "https", hostname: "cdn.discordapp.com" }],
   },
+  async redirects() {
+    return [
+      {
+        source: "/posts",
+        destination: "/",
+        permanent: false,
+      },
+    ];
+  },
 };
 export default config;
