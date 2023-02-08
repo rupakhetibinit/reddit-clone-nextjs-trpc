@@ -1,66 +1,85 @@
+import Layout from "@/components/Layout";
+import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
+import Head from "next/head";
 import { useRouter } from "next/router";
-import React, { useState } from "react";
-import Header from "../../components/Header";
-import { trpc } from "../../utils/trpc";
+import { useState } from "react";
 
 const CreatePost = () => {
-  const { data: sessionData, status } = useSession();
-  const mutation = trpc.posts.createPost.useMutation();
   const router = useRouter();
-
   const [post, setPost] = useState({
     title: "",
     body: "",
   });
+  const mutation = trpc.posts.createPost.useMutation();
 
-  const handleClick = async () => {
-    if (!!post.title && !!post.body) {
-      const thing = await mutation.mutateAsync(post);
-      if (!thing) return;
-      await router.replace("/posts/" + thing.id);
+  const handlePost = async () => {
+    const mutationPost = await mutation.mutateAsync({
+      body: post.body,
+      title: post.title,
+    });
+
+    if (mutationPost?.id !== null || undefined) {
+      router.replace("/posts/" + mutationPost?.id);
     }
-    // if (!mutation?.error?.message) {
-    //   await router.replace("/posts");
-    // }
-    console.log(mutation);
   };
-  if (status !== "authenticated") {
-    <div>loading</div>;
-  }
-  if (!sessionData) {
-    return <div>You are not logged in</div>;
-  }
+  const { data: session } = useSession();
   return (
-    <div className="container">
-      <Header />
-      <label>Title of Post</label>
-      <input
-        type="text"
-        className="w-96 rounded-md p-2"
-        onChange={(e) =>
-          setPost((post) => ({ ...post, title: e.target.value }))
-        }
-      />
-      <label>Body of Post</label>
-      <textarea
-        onChange={(e) => setPost((post) => ({ ...post, body: e.target.value }))}
-        className="h-24 w-96 resize-none rounded-md p-2"
-      />
-      <button
-        className="m-2 rounded-md bg-purple-900 px-8 py-2 text-white hover:bg-purple-700 disabled:bg-gray-800"
-        onClick={handleClick}
-        disabled={mutation.isLoading}
-      >
-        {mutation.isLoading ? "Submitting Post" : "Submit Post"}
-      </button>
-      {mutation.error && (
-        <p className="text-red-500">
-          Something went wrong! {mutation.error.message}
-        </p>
-      )}
-    </div>
+    <>
+      <Head>
+        <title>Reddit Clone | Nextjs</title>
+        <meta name="description" content="Front of the internet" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+      <main className="flex h-screen w-screen justify-center bg-gray-300">
+        <Layout isAuthed={!!session}>
+          <div className="flex w-6/12 flex-col items-center pt-20">
+            <h1 className="text-lg font-bold tracking-wide">Create Post</h1>
+            <div className="w-7/12 space-y-5 bg-gray-300">
+              <div className="">
+                <label className="mb-4" htmlFor="title">
+                  Title
+                </label>
+                <input
+                  name="title"
+                  className="mt-2 w-full rounded-sm p-2"
+                  value={post.title}
+                  maxLength={300}
+                  onChange={(e) =>
+                    setPost((prev) => ({ ...prev, title: e.target.value }))
+                  }
+                />
+              </div>
+              <div className="">
+                <label className="" htmlFor="body">
+                  Body
+                </label>
+                <textarea
+                  name="body"
+                  maxLength={3000}
+                  className="mt-2 w-full rounded-sm p-2"
+                  value={post.body}
+                  onChange={(e) =>
+                    setPost((prev) => ({ ...prev, body: e.target.value }))
+                  }
+                />
+              </div>
+            </div>
+            <button
+              className="mt-2 rounded-md bg-orange-500 px-4 py-2 text-white hover:bg-orange-600"
+              onClick={handlePost}
+            >
+              Create Post
+            </button>
+            {mutation.error && (
+              <p className="text-red-500">
+                Something went wrong! {mutation.error.message}
+              </p>
+            )}
+          </div>
+        </Layout>
+      </main>
+    </>
   );
 };
-
 export default CreatePost;
