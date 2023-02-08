@@ -8,6 +8,7 @@ import {
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import React from "react";
+import { AiOutlinePlus, AiOutlineUser } from "react-icons/ai";
 import Search from "./Search";
 import TwoIconPopover from "./TwoIconPopover";
 
@@ -60,11 +61,33 @@ const Layout = ({ isAuthed, children }: Props) => {
             <span className="hidden sm:mr-12 sm:inline">Home</span>
           }
         >
-          <div className="h-full w-40 rounded-sm bg-white p-2 text-black">
-            Feed
-            <div className="flex flex-col">
-              <span>Hello</span>
-              <span>World</span>
+          <div className="h-full w-40 space-y-2 rounded-sm bg-white p-2 text-black">
+            <div>
+              <Link
+                href="/"
+                className="flex w-full items-center gap-x-1 rounded-sm px-2 py-1 hover:bg-gray-200"
+              >
+                <HomeIcon className="h-4 w-4" />
+                <span className="prose-none">Home</span>
+              </Link>
+            </div>
+            <div>
+              <Link
+                href="/profile"
+                className="flex w-full items-center gap-x-1 rounded-sm px-2 py-1 hover:bg-gray-200"
+              >
+                <AiOutlineUser className="h-4 w-4" />
+                <span className="prose-none">Profile</span>
+              </Link>
+            </div>
+            <div>
+              <Link
+                href="/posts/create-post"
+                className="flex w-full items-center gap-x-1 rounded-sm px-2 py-1 hover:bg-gray-200"
+              >
+                <AiOutlinePlus className="h-4 w-4" />
+                <span className="prose-none">Create Post</span>
+              </Link>
             </div>
           </div>
         </TwoIconPopover>
@@ -89,8 +112,11 @@ const Layout = ({ isAuthed, children }: Props) => {
           <div className="h-full w-40 rounded-sm bg-white p-2">
             <ul>
               <li className="flex items-center px-1">
-                {isAuthed && <ArrowLeftOnRectangleIcon className="h-8 w-8" />}
-                {!isAuthed && <ArrowRightOnRectangleIcon className="h-8 w-8" />}
+                {isAuthed ? (
+                  <ArrowLeftOnRectangleIcon className="h-8 w-8" />
+                ) : (
+                  <ArrowRightOnRectangleIcon className="h-8 w-8" />
+                )}
 
                 <Link href={isAuthed ? "api/auth/signout" : "api/auth/signin"}>
                   {isAuthed ? "Sign Out" : "Sign In"}
