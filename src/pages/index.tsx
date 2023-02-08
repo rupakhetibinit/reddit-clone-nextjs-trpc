@@ -10,7 +10,7 @@ import { prisma } from "@/server/db/client";
 import React from "react";
 import type { Session } from "next-auth";
 import type Posts from "@/types/Post";
-
+import Layout from "@/components/Layout";
 export const getServerSideProps: GetServerSideProps<{
   posts: Posts[];
   isAuthed: boolean;
@@ -62,11 +62,13 @@ const Home = ({
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="flex h-screen w-screen justify-center bg-gray-300">
-        <section className="w-6/12 min-w-fit pt-16">
-          {posts.map((post) => (
-            <Post key={post.id} {...post} />
-          ))}
-        </section>
+        <Layout isAuthed={isAuthed}>
+          <section className="w-6/12 min-w-fit pt-16">
+            {posts.map((post) => (
+              <Post key={post.id} {...post} />
+            ))}
+          </section>
+        </Layout>
       </main>
     </>
   );
