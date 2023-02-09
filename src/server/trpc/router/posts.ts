@@ -1,6 +1,7 @@
 import { router, publicProcedure, protectedProcedure } from "../trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { userAgent } from "next/server";
 export const postsRouter = router({
   getAll: publicProcedure.query(async ({ ctx }) => {
     return await ctx.prisma.post.findMany({
@@ -130,68 +131,86 @@ export const postsRouter = router({
       }
     }),
   upvotePostById: protectedProcedure
-    .input(z.object({ postId: z.string(), userId: z.string() }).required())
+    .input(z.object({ postId: z.string() }).required())
     .mutation(async ({ ctx, input }) => {
       try {
-        const post = await ctx?.prisma.post.findFirst({
+        //check if post is upvoted
+        const upvotedPostCheck = await ctx.prisma.post.findFirst({
           where: {
             id: input.postId,
-          },
-          include: {
             upvotedBy: {
-              where: {
-                id: input.userId,
-              },
-            },
-            _count: {
-              select: {
-                upvotedBy: true,
+              some: {
+                id: ctx.session.user.id,
               },
             },
           },
         });
-        if (post?.upvotedBy.length === 0) {
-          await ctx.prisma.post.update({
+        //check if post is downvoted
+        const downvotePostCheck = await prisma?.post.findFirst({
+          where: {
+            id: input.postId,
+            downvotedBy: {
+              some: {
+                id: ctx.session.user.id,
+              },
+            },
+          },
+        });
+        // if post is downvoted then remove it from downvote and upvote it
+        if (downvotePostCheck !== null) {
+          const removeDownvotePost = ctx.prisma.post.update({
+            where: {
+              id: input.postId,
+            },
+            data: {
+              downvotedBy: {
+                disconnect: {
+                  id: ctx.session.user.id,
+                },
+              },
+              upvotedBy: {
+                connect: {
+                  id: ctx.session.user.id,
+                },
+              },
+            },
+          });
+          return removeDownvotePost;
+        }
+
+        // if post is not upvoted, upvote it
+        if (upvotedPostCheck === null) {
+          const upvotePost = await ctx.prisma.post.update({
+            data: {
+              upvotedBy: {
+                connect: {
+                  id: ctx.session.user.id,
+                },
+              },
+            },
+            where: {
+              id: input.postId,
+            },
+          });
+          return upvotePost;
+        }
+        // if post is upvoted, remove it
+
+        if (upvotedPostCheck !== null) {
+          const removeUpvotePost = await ctx.prisma.post.update({
             where: {
               id: input.postId,
             },
             data: {
               upvotedBy: {
-                create: {
-                  id: input.userId,
+                disconnect: {
+                  id: ctx.session.user.id,
                 },
               },
             },
           });
+          return removeUpvotePost;
         }
-        if (post?.upvotedBy?.length && post.upvotedBy.length > 0) {
-          await prisma?.post.update({
-            where: {
-              id: input.postId,
-            },
-            data: {
-              upvotedBy: {
-                delete: {
-                  id: input.userId,
-                },
-              },
-            },
-          });
-        }
-        // if (post?.upvotedBy.find((user) => user.id === input.userId)) {
-        //   await ctx.prisma.post.update({
-        //     where: {
-        //       id: input.postId,
-        //     },
-        //     data: {
-        //       upvotedBy: {
-        //         delete: {
-        //           id: input.userId,
-        //         },
-        //       },
-        //     },
-        //   });
-        // }
       } catch (error) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
@@ -200,4 +219,123 @@ export const postsRouter = router({
         });
       }
     }),
+  downvotePostById: protectedProcedure
+    .input(z.object({ postId: z.string() }).required())
+    .mutation(async ({ ctx, input }) => {
+      try {
+        //check if post is upvoted
+        const upvotedPostCheck = await ctx.prisma.post.findFirst({
+          where: {
+            id: input.postId,
+            upvotedBy: {
+              some: {
+                id: ctx.session.user.id,
+              },
+            },
+          },
+        });
+        //check if post is downvoted
+        const downvotePostCheck = await prisma?.post.findFirst({
+          where: {
+            id: input.postId,
+            downvotedBy: {
+              some: {
+                id: ctx.session.user.id,
+              },
+            },
+          },
+        });
+        // if post is upvoted then remove it from upvote and downvote it
+        if (upvotedPostCheck !== null) {
+          const addDownvotePost = ctx.prisma.post.update({
+            where: {
+              id: input.postId,
+            },
+            data: {
+              downvotedBy: {
+                connect: {
+                  id: ctx.session.user.id,
+                },
+              },
+              upvotedBy: {
+                disconnect: {
+                  id: ctx.session.user.id,
+                },
+              },
+            },
+          });
+          return addDownvotePost;
+        }
+
+        // if post is not downvoted, downvote it
+        if (downvotePostCheck === null) {
+          const upvotePost = await ctx.prisma.post.update({
+            data: {
+              downvotedBy: {
+                connect: {
+                  id: ctx.session.user.id,
+                },
+              },
+            },
+            where: {
+              id: input.postId,
+            },
+          });
+          return upvotePost;
+        }
+        // if post is downvoted, remove it
+
+        if (downvotePostCheck !== null) {
+          const removeUpvotePost = await ctx.prisma.post.update({
+            where: {
+              id: input.postId,
+            },
+            data: {
+              downvotedBy: {
+                disconnect: {
+                  id: ctx.session.user.id,
+                },
+              },
+            },
+          });
+          return removeUpvotePost;
+        }
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Something went wrong",
+          cause: error,
+        });
+      }
+    }),
+  getPosts: publicProcedure.query(async ({ ctx }) => {
+    return await ctx.prisma.post.findMany({
+      select: {
+        body: true,
+        id: true,
+        title: true,
+        user: {
+          select: {
+            name: true,
+          },
+        },
+        upvotedBy: {
+          select: {
+            id: true,
+          },
+        },
+        downvotedBy: {
+          select: {
+            id: true,
+          },
+        },
+        _count: {
+          select: {
+            upvotedBy: true,
+            downvotedBy: true,
+          },
+        },
+      },
+    });
+  }),
 });

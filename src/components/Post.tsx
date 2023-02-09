@@ -1,10 +1,13 @@
+import { trpc } from "@/utils/trpc";
 import {
   ChatBubbleBottomCenterIcon,
   ShareIcon,
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
-import React from "react";
+import { useRouter } from "next/router";
+import React, { useMemo } from "react";
 import { ImArrowUp, ImArrowDown } from "react-icons/im";
 
 type Props = {
@@ -17,15 +20,69 @@ type Props = {
   }[];
   body: string;
   title: string;
+  downvotedBy: {
+    id: string;
+  }[];
+  _count: {
+    upvotedBy: number;
+    downvotedBy: number;
+  };
 };
 
-const Post = ({ user, id, upvotedBy, body, title }: Props) => {
+const Post = ({
+  user,
+  id,
+  upvotedBy,
+  body,
+  title,
+  downvotedBy,
+  _count,
+}: Props) => {
+  const { data } = useSession();
+  const utils = trpc.useContext();
+  const { mutateAsync } = trpc.posts.upvotePostById.useMutation();
+  const { mutateAsync: mutateD } = trpc.posts.downvotePostById.useMutation();
+  const isUpvoted = useMemo(() => {
+    return upvotedBy.filter((i) => i.id === data?.user?.id).length !== 0
+      ? true
+      : false;
+  }, [upvotedBy, data]);
+  const isDownvoted = useMemo(() => {
+    return downvotedBy.filter((i) => i.id === data?.user?.id).length !== 0
+      ? true
+      : false;
+  }, [downvotedBy, data]);
+  const upvotes = _count.upvotedBy - _count.downvotedBy;
   return (
     <div key={id} className="my-4 flex w-full flex-row rounded-sm bg-white">
-      <div className="-z-1 flex flex-col items-center gap-y-1 bg-gray-100 p-2">
-        <ImArrowUp className={clsx("h-6 w-6 text-gray-400")} />
-        <span className="text-sm font-bold">Vote</span>
-        <ImArrowDown className="h-6 w-6 text-gray-400 " />
+      <div className="-z-1 flex w-12 flex-col items-center gap-y-1 bg-gray-100 p-2">
+        <ImArrowUp
+          onClick={async () => {
+            await mutateAsync({
+              postId: id,
+            });
+            await utils.invalidate();
+          }}
+          className={clsx(
+            "h-6 w-6 cursor-pointer hover:text-orange-400",
+            isUpvoted ? "text-orange-500" : "text-gray-400"
+          )}
+        />
+        <span className="text-sm font-bold">
+          {upvotes === 0 ? "Vote" : upvotes}
+        </span>
+        <ImArrowDown
+          onClick={async () => {
+            await mutateD({
+              postId: id,
+            });
+            await utils.invalidate();
+          }}
+          className={clsx(
+            "h-6 w-6 cursor-pointer hover:text-orange-400",
+            isDownvoted ? "text-orange-500" : "text-gray-400"
+          )}
+        />
       </div>
       <div className="flex-col px-4 py-2">
         <h6 className="text-xs font-normal text-gray-500">
