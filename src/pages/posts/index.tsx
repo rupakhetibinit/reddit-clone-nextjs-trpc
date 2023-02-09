@@ -38,7 +38,6 @@ type ReturnedPost = Post & {
   };
 };
 const PostCard = ({ post }: { post: ReturnedPost }) => {
-  const { data: sessionData } = useSession();
   return (
     <div className="m-2 flex h-fit w-9/12 flex-row justify-between rounded-md bg-gray-300/80 p-4">
       <div>
