@@ -5,6 +5,7 @@ import Head from "next/head";
 import React, { Suspense, useState } from "react";
 
 const Profile = () => {
+  const utils = trpc.useContext();
   const { data: session } = useSession();
   const { data: profile } = trpc.auth.getProfile.useQuery();
   const { mutateAsync } = trpc.auth.updateProfile.useMutation();
@@ -42,6 +43,7 @@ const Profile = () => {
                   onClick={async () => {
                     if (name.length !== 0) {
                       await mutateAsync({ name: name });
+                      utils.invalidate();
                     }
                   }}
                 >

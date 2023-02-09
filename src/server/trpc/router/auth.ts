@@ -27,7 +27,7 @@ export const authRouter = router({
             id: ctx.session.user.id,
           },
           data: {
-            id: input.name,
+            name: input.name,
           },
         });
         return profile;
