@@ -3,7 +3,7 @@ import {
   ShareIcon,
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
-import { useSession } from "next-auth/react";
+import Link from "next/link";
 import React from "react";
 import { ImArrowUp, ImArrowDown } from "react-icons/im";
 
@@ -19,7 +19,7 @@ type Props = {
   title: string;
 };
 
-const Post = ({ body, id, title, user, upvotedBy }: Props) => {
+const Post = ({ user, id, upvotedBy, body, title }: Props) => {
   return (
     <div key={id} className="my-4 flex w-full flex-row rounded-sm bg-white">
       <div className="-z-1 flex flex-col items-center gap-y-1 bg-gray-100 p-2">
@@ -34,10 +34,13 @@ const Post = ({ body, id, title, user, upvotedBy }: Props) => {
         <h3 className="text-lg font-semibold">{title}</h3>
         <p className="pb-2 text-sm">{body}</p>
         <div className="flex gap-x-5">
-          <button className="flex items-center gap-x-1 rounded-sm px-2 py-1 hover:bg-gray-200">
+          <Link
+            href={`/posts/${id}`}
+            className="flex items-center gap-x-1 rounded-sm px-2 py-1 hover:bg-gray-200"
+          >
             <ChatBubbleBottomCenterIcon className="h-4 w-4" />
             <span className="prose-none">Comments</span>
-          </button>
+          </Link>
           <button className="flex items-center gap-x-1 rounded-sm px-2 py-1 hover:bg-gray-200">
             <ShareIcon className="h-4 w-4" />
             <span className="prose-none">Share</span>
