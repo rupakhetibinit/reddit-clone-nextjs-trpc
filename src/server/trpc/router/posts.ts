@@ -43,6 +43,29 @@ export const postsRouter = router({
         return null;
       }
     }),
+  addCommentToPost: protectedProcedure
+    .input(z.object({ postId: z.string(), body: z.string() }).required())
+    .mutation(async ({ ctx, input }) => {
+      if (!ctx.session.user.id) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "You are not authorized to access this request",
+        });
+      }
+      try {
+        const comment = await ctx.prisma.comment.create({
+          data: {
+            body: input.body,
+            userId: ctx.session.user.id,
+            postId: input.postId,
+          },
+        });
+        return comment;
+      } catch (error) {
+        console.log(error);
+        return null;
+      }
+    }),
   getPostsByUser: protectedProcedure.query(async ({ ctx }) => {
     try {
       const posts = await ctx.prisma.post.findMany({
@@ -70,14 +93,29 @@ export const postsRouter = router({
     .input(z.object({ id: z.string() }).required())
     .query(async ({ ctx, input }) => {
       try {
-        const post = await ctx.prisma.post.findUnique({
+        const post = await ctx.prisma.post.findFirst({
           where: {
             id: input.id,
           },
-          include: {
+          select: {
+            body: true,
+            id: true,
+            title: true,
             user: {
               select: {
                 name: true,
+              },
+            },
+            upvotedBy: {
+              select: {
+                id: true,
+              },
+            },
+            comments: {
+              select: {
+                body: true,
+                id: true,
+                User: true,
               },
             },
           },
