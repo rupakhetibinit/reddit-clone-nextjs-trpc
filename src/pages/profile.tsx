@@ -44,6 +44,7 @@ const Profile = () => {
                     if (name.length !== 0) {
                       await mutateAsync({ name: name });
                       utils.invalidate();
+                      setName("");
                     }
                   }}
                 >
