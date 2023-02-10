@@ -90,7 +90,7 @@ export const postsRouter = router({
       });
     }
   }),
-  getPostById: protectedProcedure
+  getPostById: publicProcedure
     .input(z.object({ id: z.string() }).required())
     .query(async ({ ctx, input }) => {
       try {
@@ -112,11 +112,21 @@ export const postsRouter = router({
                 id: true,
               },
             },
+            downvotedBy: {
+              select: { id: true },
+            },
             comments: {
               select: {
                 body: true,
                 id: true,
                 User: true,
+              },
+            },
+            _count: {
+              select: {
+                comments: true,
+                upvotedBy: true,
+                downvotedBy: true,
               },
             },
           },

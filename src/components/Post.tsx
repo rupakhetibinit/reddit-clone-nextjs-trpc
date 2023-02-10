@@ -52,16 +52,19 @@ const Post = ({
       ? true
       : false;
   }, [downvotedBy, data]);
+
   const upvotes = _count.upvotedBy - _count.downvotedBy;
   return (
     <div key={id} className="my-4 flex w-full flex-row rounded-sm bg-white">
       <div className="-z-1 flex w-12 flex-col items-center gap-y-1 bg-gray-100 p-2">
         <ImArrowUp
           onClick={async () => {
-            await mutateAsync({
-              postId: id,
-            });
-            await utils.invalidate();
+            if (data !== null) {
+              await mutateAsync({
+                postId: id,
+              });
+              await utils.invalidate();
+            }
           }}
           className={clsx(
             "h-6 w-6 cursor-pointer hover:text-orange-400",
@@ -73,10 +76,12 @@ const Post = ({
         </span>
         <ImArrowDown
           onClick={async () => {
-            await mutateD({
-              postId: id,
-            });
-            await utils.invalidate();
+            if (data !== null) {
+              await mutateD({
+                postId: id,
+              });
+              await utils.invalidate();
+            }
           }}
           className={clsx(
             "h-6 w-6 cursor-pointer hover:text-orange-400",

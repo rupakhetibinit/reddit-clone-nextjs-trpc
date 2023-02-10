@@ -3,6 +3,7 @@ import type {
   GetServerSidePropsContext,
   InferGetServerSidePropsType,
 } from "next";
+import "react-toastify/dist/ReactToastify.css";
 import { Suspense } from "react";
 import Post from "@/components/Post";
 import Head from "next/head";
