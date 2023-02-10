@@ -186,14 +186,15 @@ const SinglePost = () => {
                         {editing ? "Save" : "Edit"}
                       </span>
                     </button>
-                    {/* <button
+                    <button
+                      disabled={!isEditableByUser || !session.data}
                       onClick={() => setIsDeleteOpen(true)}
                       className="flex items-center gap-x-1 rounded-sm px-2 py-1 hover:bg-gray-200"
                     >
                       <AiFillDelete className="h-4 w-4" />
                       <span className="prose-none">Delete</span>
-                    </button> */}
-                    {/* <div className="relative z-50">
+                    </button>
+                    <div className="relative z-50">
                       <Dialog
                         className="absolute top-[25%] left-[25%] w-1/2"
                         open={isDeleteOpen}
@@ -226,7 +227,7 @@ const SinglePost = () => {
                                 if (!error) {
                                   await utils.invalidate();
                                   setIsDeleteOpen(false);
-                                  router.replace("/posts");
+                                  router.replace("/");
                                 }
                               }}
                             >
@@ -235,7 +236,7 @@ const SinglePost = () => {
                           </Dialog.Panel>
                         </div>
                       </Dialog>
-                    </div> */}
+                    </div>
                   </div>
                 </div>
               </div>
