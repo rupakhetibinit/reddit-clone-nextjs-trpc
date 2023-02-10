@@ -2,6 +2,7 @@ import { router, publicProcedure, protectedProcedure } from "../trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { userAgent } from "next/server";
+import { comment } from "postcss";
 export const postsRouter = router({
   getAll: publicProcedure.query(async ({ ctx }) => {
     return await ctx.prisma.post.findMany({
@@ -105,6 +106,7 @@ export const postsRouter = router({
             user: {
               select: {
                 name: true,
+                id: true,
               },
             },
             upvotedBy: {
@@ -362,6 +364,87 @@ export const postsRouter = router({
           await ctx.prisma.comment.delete({
             where: {
               id: input.id,
+            },
+          });
+        }
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Something went wrong",
+          cause: error,
+        });
+      }
+    }),
+  editComment: protectedProcedure
+    .input(z.object({ id: z.string(), body: z.string() }).required())
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const comment = await ctx.prisma.comment.findFirst({
+          where: {
+            id: input.id,
+          },
+        });
+        if (!comment) return;
+        if (comment.userId === ctx.session.user.id) {
+          await ctx.prisma.comment.update({
+            where: {
+              id: input.id,
+            },
+            data: {
+              body: input.body,
+            },
+          });
+        }
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Something went wrong",
+          cause: error,
+        });
+      }
+    }),
+  editPost: protectedProcedure
+    .input(z.object({ id: z.string(), body: z.string() }).required())
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const post = await ctx.prisma.post.findFirst({
+          where: {
+            id: input.id,
+          },
+        });
+        if (!post) return null;
+        if (post.userId === ctx.session.user.id) {
+          await ctx.prisma.post.update({
+            where: {
+              id: input.id,
+            },
+            data: {
+              body: input.body,
+            },
+          });
+        }
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Something went wrong",
+          cause: error,
+        });
+      }
+    }),
+  deletePost: protectedProcedure
+    .input(z.object({ postId: z.string() }).required())
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const post = await ctx.prisma.post.findFirst({
+          where: {
+            id: input.postId,
+          },
+        });
+        if (!post) return null;
+        if (post.userId === ctx.session.user.id) {
+          await ctx.prisma.post.delete({
+            where: {
+              id: input.postId,
             },
           });
         }
