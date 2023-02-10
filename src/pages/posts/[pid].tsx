@@ -3,6 +3,7 @@ import Error from "next/error";
 import {
   ChatBubbleBottomCenterIcon,
   ShareIcon,
+  UserCircleIcon,
 } from "@heroicons/react/24/solid";
 import "react-toastify/dist/ReactToastify.css";
 import clsx from "clsx";
@@ -15,7 +16,8 @@ import { ImArrowDown, ImArrowUp } from "react-icons/im";
 import { trpc } from "../../utils/trpc";
 import { ToastContainer, toast } from "react-toastify";
 import { TRPC_ERROR_CODES_BY_KEY } from "@trpc/server/rpc";
-
+import { User } from "@prisma/client";
+import { Dialog } from "@headlessui/react";
 const SinglePost = () => {
   const session = useSession();
   const utils = trpc.useContext();
@@ -175,15 +177,7 @@ const SinglePost = () => {
               </div>
               <div className="w-full">
                 {post?.comments.map((comment) => (
-                  <div
-                    key={comment.id}
-                    className="my-2 flex-col bg-white px-4 py-2"
-                  >
-                    <h6 className="text-xs font-normal text-gray-500">
-                      Commented by {comment.User.name}
-                    </h6>
-                    <p className="text-sm">{comment.body}</p>
-                  </div>
+                  <Comment key={comment.id} {...comment} />
                 ))}
               </div>
             </Suspense>
@@ -195,3 +189,121 @@ const SinglePost = () => {
 };
 
 export default SinglePost;
+
+export const Comment = ({
+  User,
+  id,
+  body,
+}: {
+  User: User;
+  id: string;
+  body: string;
+}) => {
+  const [open, setOpen] = useState(false);
+  const [edit, setEdit] = useState(true);
+  const session = useSession();
+  const utils = trpc.useContext();
+  const { mutateAsync, error } = trpc.posts.deleteComment.useMutation();
+  const isEditableByUser = useMemo(() => {
+    return session.data?.user?.id === User.id ? true : false;
+  }, [User, session.data]);
+  return (
+    <>
+      <div key={id} className="my-2 flex-col bg-white px-4 py-2">
+        <h6 className="text-xs font-normal text-gray-500">
+          Commented by {User.name}
+        </h6>
+        <p className="text-sm">{body}</p>
+        <div className="space-x-2">
+          <button
+            disabled={!session.data || !isEditableByUser}
+            className="text-sm text-blue-500 underline"
+          >
+            Edit
+          </button>
+          <button
+            onClick={() => setOpen(true)}
+            disabled={!session.data}
+            className="text-sm text-blue-500 underline"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+      <div className="relative z-50">
+        <Dialog
+          className="absolute top-[25%] left-[25%] w-1/2"
+          open={open}
+          onClose={() => setOpen(false)}
+        >
+          <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+          <div className="fixed inset-0 flex items-center justify-center p-4">
+            <Dialog.Panel className="bg-white p-8">
+              <Dialog.Title className="text-md font-bold">
+                Delete comment
+              </Dialog.Title>
+              <Dialog.Description className="mb-4">
+                This will permanently delete your comment
+              </Dialog.Description>
+              <button
+                className="mr-4 rounded-md bg-green-400 px-4 py-2 text-white hover:bg-green-600"
+                onClick={() => setOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="rounded-md bg-red-400 px-4 py-2 text-white hover:bg-red-600 "
+                onClick={async () => {
+                  await mutateAsync({ id: id });
+                  if (!error) {
+                    utils.invalidate();
+                    setOpen(false);
+                  }
+                }}
+              >
+                Delete
+              </button>
+            </Dialog.Panel>
+          </div>
+        </Dialog>
+        <div className="relative z-50">
+          <Dialog
+            className="absolute top-[25%] left-[25%] w-1/2"
+            open={open}
+            onClose={() => setOpen(false)}
+          >
+            <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+            <div className="fixed inset-0 flex items-center justify-center p-4">
+              <Dialog.Panel className="bg-white p-8">
+                <Dialog.Title className="text-md font-bold">
+                  Edit comment
+                </Dialog.Title>
+                {/* <Dialog.Description className="mb-4">
+                
+              </Dialog.Description> */}
+                <button
+                  className="mr-4 rounded-md bg-green-400 px-4 py-2 text-white hover:bg-green-600"
+                  onClick={() => setOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="rounded-md bg-red-400 px-4 py-2 text-white hover:bg-red-600 "
+                  onClick={async () => {
+                    await mutateAsync({ id: id });
+                    if (!error) {
+                      utils.invalidate();
+                      setOpen(false);
+                    }
+                  }}
+                >
+                  Delete
+                </button>
+              </Dialog.Panel>
+            </div>
+          </Dialog>
+        </div>
+      </div>
+    </>
+  );
+};

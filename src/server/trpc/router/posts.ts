@@ -348,4 +348,29 @@ export const postsRouter = router({
       },
     });
   }),
+  deleteComment: protectedProcedure
+    .input(z.object({ id: z.string() }).required())
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const comment = await ctx.prisma.comment.findFirst({
+          where: {
+            id: input.id,
+          },
+        });
+        if (!comment) return;
+        if (comment.userId === ctx.session.user.id) {
+          await ctx.prisma.comment.delete({
+            where: {
+              id: input.id,
+            },
+          });
+        }
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Something went wrong",
+          cause: error,
+        });
+      }
+    }),
 });
