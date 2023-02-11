@@ -444,17 +444,16 @@ export const postsRouter = router({
         });
         if (!post) return null;
         if (post.userId === ctx.session.user.id) {
-          const comments = ctx.prisma.comment.deleteMany({
+          const comments = await ctx.prisma.comment.deleteMany({
             where: {
               postId: input.postId,
             },
           });
-          const post = ctx.prisma.post.delete({
+          const post = await ctx.prisma.post.delete({
             where: {
               id: input.postId,
             },
           });
-          await prisma?.$transaction([comments, post]);
         }
       } catch (error) {
         throw new TRPCError({
