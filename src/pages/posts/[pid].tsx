@@ -103,7 +103,7 @@ const SinglePost = () => {
       </Head>
       <main className="flex h-full min-h-screen w-full justify-center bg-gray-300">
         <Layout isAuthed={!!session.data}>
-          <div className="flex w-6/12 flex-col items-center pt-20">
+          <div className="flex w-6/12 min-w-fit flex-col items-center pt-20">
             <Suspense fallback={<div>Loading...</div>}>
               <div
                 key={post?.id}
@@ -341,14 +341,14 @@ export const Comment = ({
           <button
             onClick={handleEdit}
             disabled={!session.data || !isEditableByUser}
-            className="text-sm text-blue-500 underline"
+            className="text-sm text-blue-500 underline disabled:text-gray-500 disabled:no-underline"
           >
             {isEditing ? "Save" : "Edit"}
           </button>
           <button
             onClick={() => setOpen(true)}
-            disabled={!session.data}
-            className="text-sm text-blue-500 underline"
+            disabled={!session.data || !isEditableByUser}
+            className="text-sm text-blue-500 underline disabled:text-gray-500 disabled:no-underline"
           >
             Delete
           </button>
