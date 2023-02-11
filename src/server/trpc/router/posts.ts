@@ -158,7 +158,7 @@ export const postsRouter = router({
           },
         });
         //check if post is downvoted
-        const downvotePostCheck = await prisma?.post.findFirst({
+        const downvotePostCheck = await ctx.prisma.post.findFirst({
           where: {
             id: input.postId,
             downvotedBy: {
@@ -224,6 +224,7 @@ export const postsRouter = router({
           return removeUpvotePost;
         }
       } catch (error) {
+        console.log(error);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Something went wrong",
@@ -247,7 +248,7 @@ export const postsRouter = router({
           },
         });
         //check if post is downvoted
-        const downvotePostCheck = await prisma?.post.findFirst({
+        const downvotePostCheck = await ctx.prisma.post.findFirst({
           where: {
             id: input.postId,
             downvotedBy: {
@@ -313,6 +314,7 @@ export const postsRouter = router({
           return removeUpvotePost;
         }
       } catch (error) {
+        console.log(error);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Something went wrong",

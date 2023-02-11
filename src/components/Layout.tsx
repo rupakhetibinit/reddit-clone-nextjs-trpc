@@ -7,6 +7,7 @@ import {
 } from "@heroicons/react/24/solid";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import React from "react";
 import { AiOutlinePlus, AiOutlineUser } from "react-icons/ai";
 import Search from "./Search";
@@ -19,6 +20,7 @@ type Props = {
 
 const Layout = ({ isAuthed, children }: Props) => {
   const userSession = useSession();
+  const router = useRouter();
   return (
     <>
       <header className="fixed flex w-full items-center justify-between gap-2 bg-white py-2 px-4">
@@ -96,9 +98,15 @@ const Layout = ({ isAuthed, children }: Props) => {
         <nav>
           <ul>
             <li className="hidden rounded-full bg-orange-600 px-4 py-2 font-bold text-white md:inline">
-              <Link href={isAuthed ? "api/auth/signout" : "api/auth/signin"}>
+              <button
+                onClick={() =>
+                  router.push(
+                    isAuthed ? "/api/auth/signout" : "/api/auth/signin"
+                  )
+                }
+              >
                 {isAuthed ? "Sign Out" : "Sign In"}
-              </Link>
+              </button>
             </li>
           </ul>
         </nav>
