@@ -16,6 +16,8 @@ import { trpc } from "../../utils/trpc";
 import type { User } from "@prisma/client";
 import { Dialog } from "@headlessui/react";
 import { AiFillDelete, AiFillEdit, AiFillSave } from "react-icons/ai";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const SinglePost = () => {
   const [editing, setEditing] = useState(false);
   const session = useSession();
@@ -94,6 +96,10 @@ const SinglePost = () => {
   };
   const upvotes =
     (post?._count?.upvotedBy as number) - (post?._count.downvotedBy as number);
+  const origin =
+    typeof window !== "undefined" && window.location.origin
+      ? window.location.origin
+      : "";
   return (
     <>
       <Head>
@@ -168,7 +174,19 @@ const SinglePost = () => {
                       <ChatBubbleBottomCenterIcon className="h-4 w-4" />
                       <span className="prose-none">Comments</span>
                     </Link>
-                    <button className="flex items-center gap-x-1 rounded-sm px-2 py-1 hover:bg-gray-200">
+                    <button
+                      onClick={async () => {
+                        await navigator.clipboard.writeText(
+                          `${origin}/posts/${post?.id}`
+                        );
+                        toast("Copied to clipboard", {
+                          hideProgressBar: true,
+                          autoClose: 2000,
+                          type: "success",
+                        });
+                      }}
+                      className="flex items-center gap-x-1 rounded-sm px-2 py-1 hover:bg-gray-200"
+                    >
                       <ShareIcon className="h-4 w-4" />
                       <span className="prose-none">Share</span>
                     </button>

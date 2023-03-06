@@ -1,4 +1,6 @@
 import { trpc } from "@/utils/trpc";
+import { Popover } from "@headlessui/react";
+import "react-toastify/dist/ReactToastify.css";
 import {
   ChatBubbleBottomCenterIcon,
   ShareIcon,
@@ -7,8 +9,9 @@ import clsx from "clsx";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React, { useMemo } from "react";
+import React, { memo, useEffect, useMemo } from "react";
 import { ImArrowUp, ImArrowDown } from "react-icons/im";
+import { toast } from "react-toastify";
 
 type Props = {
   user: {
@@ -29,7 +32,7 @@ type Props = {
   };
 };
 
-const Post = ({
+const Post = memo(function Post({
   user,
   id,
   upvotedBy,
@@ -37,7 +40,8 @@ const Post = ({
   title,
   downvotedBy,
   _count,
-}: Props) => {
+}: Props) {
+  const router = useRouter();
   const { data } = useSession();
   const utils = trpc.useContext();
   const { mutateAsync } = trpc.posts.upvotePostById.useMutation();
@@ -52,6 +56,10 @@ const Post = ({
       ? true
       : false;
   }, [downvotedBy, data]);
+  const origin =
+    typeof window !== "undefined" && window.location.origin
+      ? window.location.origin
+      : "";
 
   const upvotes = _count.upvotedBy - _count.downvotedBy;
   return (
@@ -103,7 +111,20 @@ const Post = ({
             <ChatBubbleBottomCenterIcon className="h-4 w-4" />
             <span className="prose-none">Comments</span>
           </Link>
-          <button className="flex items-center gap-x-1 rounded-sm px-2 py-1 hover:bg-gray-200">
+
+          <button
+            onClick={() => {
+              async () => {
+                await navigator.clipboard.writeText(`${origin}/posts/${id}`);
+              };
+              toast("Copied to clipboard", {
+                hideProgressBar: true,
+                autoClose: 2000,
+                type: "success",
+              });
+            }}
+            className="flex items-center gap-x-1 rounded-sm px-2 py-1 hover:bg-gray-200"
+          >
             <ShareIcon className="h-4 w-4" />
             <span className="prose-none">Share</span>
           </button>
@@ -111,6 +132,6 @@ const Post = ({
       </div>
     </div>
   );
-};
+});
 
 export default Post;
