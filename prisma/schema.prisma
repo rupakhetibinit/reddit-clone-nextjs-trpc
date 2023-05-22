@@ -75,7 +75,7 @@ model VerificationToken {
 
 model Post {
   id          String    @id @default(cuid())
-  body        String
+  body        String    @db.Text
   title       String
   upvotes     Int       @default(0)
   user        User      @relation(fields: [userId], references: [id])
